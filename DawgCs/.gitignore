@@ -1,0 +1,5 @@
+bin/
+obj/
+*.user
+.vs/
+dawg_cs.bin

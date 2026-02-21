@@ -1,0 +1,52 @@
+DAWG Binary File Format (dawg.bin)
+===================================
+
+Overview:
+The file contains a compressed DAWG (Directed Acyclic Word Graph) representing
+a dictionary of lowercase English words (a-z only). The entire file is an array
+of uint32 values (little-endian, 4 bytes each). There is no file header.
+
+Structure:
+Each uint32 entry represents an edge from a parent node to a child node.
+A node's children are stored as a consecutive run of entries called a "sibling list".
+The root node's children start at array index 0.
+
+Bit Layout (per uint32 entry):
+  Bits 0-4   (5 bits): Character — letter encoded as 1-26 where 1='a', 2='b', ... 26='z'. 0 is unused.
+  Bit  5     (1 bit):  End of Word — 1 if traversing this edge completes a valid word.
+  Bit  6     (1 bit):  End of Node — 1 if this is the last entry in the current sibling list.
+  Bits 7-31  (25 bits): Next Pointer — array index where the child node's own sibling list starts.
+                         0 means the child has no children (leaf).
+
+Key Design Detail — Terminal Flag is Per-Edge:
+The End of Word flag is stored on the edge (the uint32 entry), NOT on the target node.
+This means multiple edges can point to the same shared child node, with some edges
+marking it as word-ending and others not. This enables more subtree sharing.
+
+How to Traverse:
+1. Start at index 0 (root's first child edge).
+2. Scan the sibling list: read each entry, extract the character.
+   - If End of Node (bit 6) is set, this is the last sibling.
+3. To follow an edge: the Next Pointer (bits 7-31) gives the index of the child's sibling list.
+   - If Next Pointer is 0, the child is a leaf (no further children).
+4. To check if a word is complete at this edge: check End of Word (bit 5).
+
+Example — Looking up a word:
+  For each letter in the word:
+    - Scan the current sibling list for a matching character.
+    - If found: check End of Word if this is the last letter.
+    - If found and more letters remain: follow Next Pointer to the child's sibling list.
+    - If not found (reached End of Node without matching): word is not in the dictionary.
+
+Bit Extraction (C# examples):
+  uint char_val  = (entry)       & 0x1F;        // 1-26
+  char letter    = (char)('a' + char_val - 1);   // 'a'-'z'
+  bool eow       = ((entry >> 5) & 1) == 1;      // end of word
+  bool eon       = ((entry >> 6) & 1) == 1;      // end of sibling list
+  uint next      = (entry >> 7)  & 0x1FFFFFF;    // child index
+
+File Stats (from words.txt, 370105 words):
+  Entries: 370413
+  File size: 1481652 bytes (~1.4 MB)
+  Original trie nodes: 1027810
+  DAWG nodes after compression: 157183 (84.7% reduction)

@@ -1,0 +1,17 @@
+implement a simple c solution to create a compressed dawg word graph from a word list in a file and save it to a file in a format described below.
+
+a test file called testwords.txt is included for the initial test of the code.
+
+the objective is the compressed binary file.
+
+a second file called words.txt will be the real file to compress.
+
+the binary save file structure:
+
+To store everything in one uint32_t array, we need to allocate bits for the character, the graph structure, and the "address" of the next node.
+Bits	Purpose	Description
+0–4	Character	5 bits for 'a'-'z' (1–26). 0 can represent a null/root.
+5	End of Word	1 if this node completes a valid word (e.g., the 'r' in "car").
+6	End of Node	1 if this is the last child in a sibling list (the "edge list").
+7–31	Next Pointer	25 bits for the index of the first child in the array.
+Note: A 25-bit pointer allows for 2^{25} (approx. 33.5 million) nodes, which is plenty for this dataset.
