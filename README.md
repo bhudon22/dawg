@@ -49,6 +49,10 @@ dotnet run -c Release -- ../words.txt dawg_cs.bin
 
 Both programs accept an optional word-list path as the first argument and output path as the second. They print the same stats and verify the binary by walking it and counting words.
 
+## Prebuilt binaries
+
+`dawg.bin` and `dawg_cs.bin` are included in the repo — both built from `words.txt` using their respective implementations. They are byte-identical, which confirms the C# port is a faithful reproduction of the C algorithm.
+
 ## Word list
 
 `words.txt` contains ~370K lowercase English words, one per line. Words with non-alphabetic characters are skipped automatically.
