@@ -54,3 +54,5 @@ Both programs accept an optional word-list path as the first argument and output
 `words.txt` contains ~370K lowercase English words, one per line. Words with non-alphabetic characters are skipped automatically.
 
 `testwords.txt` is a 12-word subset useful for quick tests and DOT graph visualisation.
+
+## words.txt is part of: https://github.com/dwyl/english-words
