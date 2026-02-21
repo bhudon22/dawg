@@ -8,9 +8,7 @@ cmake-build-debug/
 DawgCs/bin/
 DawgCs/obj/
 
-# Generated binary files
-dawg.bin
-dawg_cs.bin
+# Generated binary files (root-level ones are intentionally tracked)
 dawg.dot
 dawg.png
 
